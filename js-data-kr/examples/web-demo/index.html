@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DongnaeJS Demo</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* 탭 스타일 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 입력 패널 */
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button.action-btn {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 결과 카드 */
+        #result-area {
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: var(--card);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .result-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .result-meta {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #eff6ff;
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🏘️ DongnaeJS</h1>
+
+    <!-- 탭 메뉴 -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('search')">이름 검색</button>
+        <button class="tab-btn" onclick="switchTab('gps')">좌표/GPS</button>
+    </div>
+
+    <!-- 패널 1: 이름 검색 -->
+    <div id="panel-search" class="panel active">
+        <div class="input-group">
+            <input type="text" id="keyword" placeholder="동네 이름 (예: 판교, 역삼)" onkeypress="handleEnter(event)">
+            <button class="action-btn" onclick="doSearch()">검색</button>
+        </div>
+    </div>
+
+    <!-- 패널 2: 좌표/GPS -->
+    <div id="panel-gps" class="panel">
+        <div class="input-group">
+            <input type="number" id="lat" placeholder="위도 (37.xxx)" step="0.0001" value="37.5665">
+            <input type="number" id="lon" placeholder="경도 (126.xxx)" step="0.0001" value="126.9780">
+        </div>
+        <div class="input-group">
+            <button class="action-btn" style="flex:1; background:#10b981;" onclick="getGPS()">📍 내 위치 가져오기</button>
+            <button class="action-btn" style="flex:1;" onclick="doReverseGeo()">조회</button>
+        </div>
+    </div>
+
+    <!-- 결과 표시 영역 -->
+    <div id="result-area">
+        <div class="result-card" style="border-left-color: #94a3b8;">
+            <div class="result-meta">데이터 로딩 중...</div>
+        </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+
+    <!-- 탭 전환 스크립트 (UI 전용) -->
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+
+            if (tabName === 'search') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('panel-search').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('panel-gps').classList.add('active');
+            }
+        }
+        function handleEnter(e) { if (e.key === 'Enter') doSearch(); }
+    </script>
+</body>
+
+</html>
