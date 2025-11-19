@@ -5,11 +5,23 @@ Dictionary of dongnaes should be loaded from CSV prior to using this engine.
 
 import csv
 import math
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, TypedDict
+
+# [Improvement] 데이터 구조 명시를 위한 TypedDict 정의
+# total=False를 사용하여 distance, score 등 동적 필드 허용
+class DongnaeData(TypedDict, total=False):
+    dnid: str
+    dnname: str
+    dnlatitude: float
+    dnlongitude: float
+    dnradius: float
+    distance: float  # Injected during runtime
+    score: float     # Injected during runtime
 
 class DongnaeEngine:
     def __init__(self, csv_path: str = None):
-        self._dongnaes: List[Dict] = []
+        self._dongnaes: List[DongnaeData] = []
+        self._id_map: Dict[str, DongnaeData] = {}  # [Improvement] O(1) ID 조회를 위한 인덱스
         
         # Default Haversine coefficients (Based on Korea, approx 37N)
         # Will be updated automatically in load()
@@ -32,7 +44,7 @@ class DongnaeEngine:
             try:
                 with open(csv_path, mode='r', encoding=enc) as f:
                     reader = csv.DictReader(f)
-                    temp_data = []
+                    temp_data: List[DongnaeData] = []
                     for row in reader:
                         temp_data.append({
                             'dnid': row['dnid'],
@@ -50,6 +62,13 @@ class DongnaeEngine:
         
         if not loaded:
             raise ValueError(f"Failed to load CSV: {csv_path}. Tried encodings: {encodings}.")
+
+        # -------------------------------------------------------
+        # [Improvement] Build ID Index (HashMap) for O(1) lookup
+        # -------------------------------------------------------
+        # 리스트의 객체를 그대로 참조(Reference)하므로 메모리 효율적임
+        if self._dongnaes:
+            self._id_map = {d['dnid']: d for d in self._dongnaes}
 
         # -------------------------------------------------------
         # [Auto-Calibration] Calculate Haversine coefficients
@@ -77,7 +96,7 @@ class DongnaeEngine:
         d_lon = (lon2 - lon1) * self._lon_coef
         return math.sqrt(d_lat**2 + d_lon**2)
 
-    def _dongnae_dist(self, lat: float, lon: float, dn: Dict) -> float:
+    def _dongnae_dist(self, lat: float, lon: float, dn: DongnaeData) -> float:
         """
         [Business Metric] Calculates 'Boundary Distance' from a point to a Dongnae.
         Returns: (Geometric Distance to Center) - (Radius of Dongnae)
@@ -88,14 +107,14 @@ class DongnaeEngine:
         # Apply Radius adjustment
         return center_dist - dn['dnradius']
 
-    def where(self, lat: float, lon: float) -> Optional[Dict]:
+    def where(self, lat: float, lon: float) -> Optional[DongnaeData]:
         """
         [Reverse Geocoding] Returns the single nearest 'Dongnae' (neighborhood).
         """
         nearest = self.nearest(lat, lon, k=1)
         return nearest[0] if nearest else None
 
-    def nearest(self, lat: float, lon: float, k: int = 1, radius_km: float = None) -> List[Dict]:
+    def nearest(self, lat: float, lon: float, k: int = 1, radius_km: float = None) -> List[DongnaeData]:
         """
         Returns the K nearest Dongnaes sorted by 'Boundary Distance'.
         :param radius_km: Used to limit the search range (performance optimization)
@@ -123,6 +142,7 @@ class DongnaeEngine:
             b_dist = self._dongnae_dist(lat, lon, dn)
             
             if radius_km is None or b_dist <= radius_km:
+                # Return a copy to avoid modifying the original data in memory
                 dn_res = dn.copy()
                 dn_res['distance'] = round(b_dist, 4)
                 results.append(dn_res)
@@ -130,13 +150,13 @@ class DongnaeEngine:
         results.sort(key=lambda x: x['distance'])
         return results[:k]
 
-    def within(self, lat: float, lon: float, radius_km: float, limit: int = None) -> List[Dict]:
+    def within(self, lat: float, lon: float, radius_km: float, limit: int = None) -> List[DongnaeData]:
         """
         [Radius Search] Returns all Dongnaes whose boundaries are within R km.
         """
         return self.nearest(lat, lon, k=limit if limit else len(self._dongnaes), radius_km=radius_km)
 
-    def resolve(self, lat: float, lon: float, threshold: float = 1.0) -> List[Dict]:
+    def resolve(self, lat: float, lon: float, threshold: float = 1.0) -> List[DongnaeData]:
         """
         [Soft Geofencing] Determine if coordinates fall within a specific Dongnae's effective radius.
         """
@@ -167,8 +187,7 @@ class DongnaeEngine:
         matches.sort(key=lambda x: x['score'])
         return matches
 
-
-    def search(self, keyword: str, limit: int = 5, best_shot: bool = True) -> Union[List[Dict], Optional[Dict]]:
+    def search(self, keyword: str, limit: int = 5, best_shot: bool = True) -> Union[List[DongnaeData], Optional[DongnaeData]]:
         """
         [Text Search & Geocoding] Search by Dongnae name (Bag of Words similarity).
         
@@ -218,12 +237,10 @@ class DongnaeEngine:
         else:
             return results     # Return List[Dict] (Search Mode)
 
-
-    def get(self, dnid: str) -> Optional[Dict]:
+    def get(self, dnid: str) -> Optional[DongnaeData]:
         """
-        [ID Lookup] Direct lookup by dnid (legal dong code)
+        [ID Lookup] Direct lookup by dnid (legal dong code) using Hash Map.
+        Time Complexity: O(1)
         """
-        for dn in self._dongnaes:
-            if dn['dnid'] == str(dnid):
-                return dn
-        return None
+        return self._id_map.get(str(dnid))
+    
