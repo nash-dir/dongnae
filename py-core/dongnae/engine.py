@@ -5,7 +5,7 @@ Dictionary of dongnaes should be loaded from CSV prior to using this engine.
 
 import csv
 import math
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 class DongnaeEngine:
     def __init__(self, csv_path: str = None):
@@ -167,13 +167,19 @@ class DongnaeEngine:
         matches.sort(key=lambda x: x['score'])
         return matches
 
-    def search(self, keyword: str, limit: int = 5) -> List[Dict]:
+
+    def search(self, keyword: str, limit: int = 5, best_shot: bool = True) -> Union[List[Dict], Optional[Dict]]:
         """
-        [Text Search] Search by Dongnae name (Bag of Words similarity)
+        [Text Search & Geocoding] Search by Dongnae name (Bag of Words similarity).
+        
+        :param keyword: Search query (e.g., "Pangyo")
+        :param limit: Max number of candidates (only used when best_shot=False)
+        :param best_shot: If True, returns the single best match (Geocoding mode).
+                          If False, returns a list of candidates (Search mode).
         """
         query_tokens = keyword.strip().split()
         if not query_tokens:
-            return []
+            return None if best_shot else []
 
         scored_list = []
         for dn in self._dongnaes:
@@ -193,14 +199,25 @@ class DongnaeEngine:
         # Sort: High score -> Short name length
         scored_list.sort(key=lambda x: (-x['score'], x['len']))
         
-        # [수정된 부분] 원본 데이터에 score를 추가하여 반환
+        # Inject score into results
         results = []
-        for item in scored_list[:limit]:
+        # If best_shot is True, we only need the top 1, otherwise up to limit
+        target_slice = scored_list[:1] if best_shot else scored_list[:limit]
+        
+        for item in target_slice:
             dn_res = item['data'].copy()
             dn_res['score'] = item['score']
             results.append(dn_res)
             
-        return results
+        if not results:
+            return None if best_shot else []
+
+        # Return Logic based on best_shot flag
+        if best_shot:
+            return results[0]  # Return single Dict (Geocoding Mode)
+        else:
+            return results     # Return List[Dict] (Search Mode)
+
 
     def get(self, dnid: str) -> Optional[Dict]:
         """
