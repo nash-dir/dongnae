@@ -1,23 +1,56 @@
 # **dongnae** 
 
-**Ultra-lightweight Quasi-Geocoding Engine for Local Services**
+## **Ultra lightweight, self contained, Quasi-Geocoding Engine**
 
-dongnae is a dependency-free, pure Python library designed for **high-performance reverse geocoding, radius search, and spatial lookups**. It operates without heavy GIS libraries (like pandas, geopandas, or shapely), relying solely on Python's standard libraries (csv, math).
+* **dongnae** is a dependency-free, pure Python library designed for **high-performance reverse geocoding, radius search, and spatial lookups**. It operates from self-contained native script & pre-rendered CSV dataframe. Designed for high-performance microservices and client-side applications.
 
-It is optimized for **local/regional datasets** (e.g., Neighborhoods in a specific country) using latitude-based auto-calibration instead of expensive spherical trigonometry for every calculation.
+* It is optimized for **local/regional datasets** (e.g., Neighborhoods in a specific country) using latitude-based auto-calibration instead of expensive spherical trigonometry for every calculation.
 
 ## **Key Features**
 
-* **Zero Dependencies**: Runs on pure Python. No pip install required for dependencies.  
-* **Lightning Fast**:  
+* **Quasi-Geocoding to "Dongnae""**
+
+  * Sometimes you just want to lookup which neighborhood you are in.
+  
+  * Instead of precise street-level addresses, it maps coordinates to the nearest "Dongnae" (Neighborhood/District node), which is not quite precise but still good enough for some applications.
+
+  * Key concept of this engine is **"dongnae"** - an object that has ID(dnid), Name(dnname), 2D coordinates(dnlatitude, dnlongitude), and radius(dnradius).
+
+  * Dictionary of dongnaes should be loaded from CSV / JS prior to using this engine.
+
+* **Zero Dependencies** 
+
+  * **Pure Python**: Runs on pure Python & essential libraries (csv, math). No pip install required for dependencies. 
+  
+  * **Ultra lightweight** : Does not require heavy GIS libraries (pandas, geopandas, or shapely)
+
+* **Lightning Fast**
+
   * **Auto-Calibration**: Calculates Haversine coefficients once upon loading, avoiding repeated trigonometric operations (cos, sin) during queries.  
+
   * **Spatial Indexing**: Uses dynamic Bounding Box (BBox) filtering to minimize search space.  
+
   * $O(1)$ **ID Lookup**: Instant retrieval by ID using an internal Hash Map.  
-* **Quasi-Geocoding**: instead of precise street addresses, it maps coordinates to the nearest "Dongnae" (Neighborhood/District node), which is often sufficient for O2O (Online-to-Offline) services.  
+
+* **Self-contained**
+
+  * **Zero backend** : No networking, GIS server required
+
+  * **Zero dependencies** : Runs on Python standard libraries (csv, math), 
+
+  * **Zero authentication** : No authentication, API key required
+
+  * **Zero vulnerability** : You can't hack what doesn't quack.
+
 * **Business-Ready Logic**:  
   * **Boundary Distance**: Calculates distance from the *edge* of a neighborhood, not just the center.  
+
   * **Soft Geofencing**: Determines if a point is "roughly" inside a neighborhood with an adjustable threshold.  
+
   * **Text Search**: Built-in keyword search functionality.
+
+  * **Privacy by Design** : No Personal Information including Geolocation sent outside.  
+ 
 
 ## **Getting Started**
 
@@ -32,6 +65,8 @@ You need a CSV file containing your local spatial nodes. The file **must** have 
 | dnlatitude | Float | Y Coordinate |
 | dnlongitude | Float | X Coordinate |
 | dnradius | Float | Effective radius of the area (km) |
+
+* **Pre-rendered Korean Dongnae dictionary** CSV included in data
 
 ### **2\. Installation**
 
