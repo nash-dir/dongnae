@@ -69,7 +69,7 @@ export class DongnaeEngine {
     }
 
     /**
-     * [Reverse Geocoding] 가장 가까운 동네 하나 반환
+     * [Reverse Geocoding] Lookup one nearest Dongnae from given coordinate
      */
     where(lat, lon) {
         const results = this.nearest(lat, lon, 1);
@@ -77,7 +77,7 @@ export class DongnaeEngine {
     }
 
     /**
-     * [Nearest Neighbor] 주변 K개 동네 탐색
+     * [Nearest Neighbor] Lookup k-best Dongnae(s) from given coordinate
      */
     nearest(lat, lon, k = 1, radiusKm = null) {
         // 1. Bounding Box Filtering
@@ -87,12 +87,11 @@ export class DongnaeEngine {
 
         const candidates = [];
 
-        // JS의 for 루프는 매우 빠름
         for (let i = 0; i < this.count; i++) {
             const tLat = this.lats[i];
             const tLon = this.lons[i];
 
-            // 범위 체크 (BBox)
+            // check radius (BBox)
             if (tLat >= lat - latDelta && tLat <= lat + latDelta &&
                 tLon >= lon - lonDelta && tLon <= lon + lonDelta) {
 
@@ -112,7 +111,7 @@ export class DongnaeEngine {
     }
 
     /**
-     * [Radius Search] 반경 내 모든 동네 반환
+     * [Radius Search] search Dongnae(s) within certain radius
      */
     within(lat, lon, radiusKm, limit = null) {
         const results = this.nearest(lat, lon, this.count, radiusKm);
