@@ -1,0 +1,19 @@
+{
+    "name": "@dongnae-js/data-kr",
+    "version": "1.0.0a",
+    "description": "Korean district (Dongnae) search engine with optimized spatial indexing. Under development.",
+    "type": "module",
+    "main": "src/engine.js",
+    "types": "index.d.ts",
+    "scripts": {
+        "test": "node examples/web-demo/main.js"
+    },
+    "keywords": [
+        "korea",
+        "dongnae",
+        "geocoding",
+        "search"
+    ],
+    "author": "Dongnae Team",
+    "license": "MIT"
+}

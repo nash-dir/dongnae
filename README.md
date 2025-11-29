@@ -4,6 +4,10 @@
 
 * **dongnae** is a dependency-free, pure Python library designed for **high-performance reverse geocoding, radius search, and spatial lookups**. It operates from self-contained native script & pre-rendered CSV dataframe. Designed for high-performance microservices and client-side applications.
 
+* **Zero backend**
+* **Zero auth**
+* **Zero dependencies**
+
 * It is optimized for **local/regional datasets** (e.g., Neighborhoods in a specific country) using latitude-based auto-calibration instead of expensive spherical trigonometry for every calculation.
 
 ## **Key Features**
@@ -40,7 +44,7 @@
 
   * **Zero authentication** : No authentication, API key required
 
-  * **Zero vulnerability** : You can't hack what doesn't quack.
+  * **Zero vulnerability** : No external connections means no attack surface. (You can't hack what doesn't quack.)
 
 * **Business-Ready Logic**:  
   * **Boundary Distance**: Calculates distance from the *edge* of a neighborhood, not just the center.  
@@ -66,7 +70,7 @@ You need a CSV file containing your local spatial nodes. The file **must** have 
 | dnlongitude | Float | X Coordinate |
 | dnradius | Float | Effective radius of the area (km) |
 
-* **Pre-rendered Korean Dongnae dictionary** CSV included in data
+* **Pre-rendered Korean Dongnae dictionary** CSV included in 'dongnae/data'
 
 ### **2\. Installation**
 
@@ -107,7 +111,7 @@ nearby\_spots \= engine.within(lat, lon, radius\_km=2.0)
 
 ### **4\. Soft Geofencing (resolve)**
 
-Check if a user is inside a specific area with a tolerance buffer.
+Determines if a coordinate falls within a neighborhood's effective radius, with an optional tolerance buffer (fuzziness).
 
 * threshold=1.0: Strict boundary.  
 * threshold=1.2: 20% buffer zone (Loose).
