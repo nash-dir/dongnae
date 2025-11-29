@@ -65,3 +65,6 @@ test_*.csv
 # 2. 보안상 중요하거나 용량이 너무 크다면 무시 (Git LFS 사용 권장)
 # *.csv
 # !data/sample.csv  # 샘플만 예외적으로 허용할 경우
+
+# etc.
+todo.md
