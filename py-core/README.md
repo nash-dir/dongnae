@@ -1,7 +1,5 @@
 # **dongnae** 
 
-[![PyPI version](https://badge.fury.io/py/dongnae.svg)](https://badge.fury.io/py/dongnae)
-
 ## **Ultra lightweight, self contained, Quasi-Geocoding Engine**
 
 * **dongnae** is a dependency-free, pure Python library designed for **high-performance reverse geocoding, radius search, and spatial lookups**. It operates from self-contained native script & pre-rendered CSV dataframe. Designed for high-performance microservices and client-side applications.
@@ -72,16 +70,14 @@ You need a CSV file containing your local spatial nodes. The file **must** have 
 | dnlongitude | Float | X Coordinate |
 | dnradius | Float | Effective radius of the area (km) |
 
-* **Pre-rendered Korean Dongnae dictionary** CSV included in 'dongnae/data'
-
 ### **2\. Installation**
 
-Simply copy engine.py into your project directory.
-
-from engine import DongnaeEngine
+``` bash
+pip install dongnae
+```
 
 \# Initialize and load data  
-engine \= DongnaeEngine("my\_korea\_data.csv")
+engine \= DongnaeEngine("data.csv")
 
 ## **Usage Examples**
 
