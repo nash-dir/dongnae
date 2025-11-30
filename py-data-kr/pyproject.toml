@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dongnae-kr"
+version = "2025.11.30" 
+description = "Korean dataset plugin for dongnae engine"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE.txt"}
+authors = [{name = "nash-dir"}]
+dependencies = [
+    "dongnae>=0.1.0"  # 코어 패키지 의존성 명시
+]
+
+[tool.setuptools.packages.find]
+include = ["dongnae_kr*"]
+
+[tool.setuptools.package-data]
+"dongnae_kr" = ["data/*.csv"]
