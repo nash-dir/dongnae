@@ -28,7 +28,11 @@ dist/
 debug/
 benchmark/
 debug.py
+
+# Under construction
+js-core/
 data/
+utils/
 
 # --------------------------------------------------------------------
 # JavaScript / Web (Frontend)
