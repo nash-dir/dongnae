@@ -28,6 +28,7 @@ dist/
 debug/
 benchmark/
 debug.py
+data/
 
 # --------------------------------------------------------------------
 # JavaScript / Web (Frontend)
