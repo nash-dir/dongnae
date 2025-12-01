@@ -2,7 +2,7 @@ import csv
 import json
 import os
 
-INPUT_FILENAME = "dongnaeKR_251117.csv"
+INPUT_FILENAME = "dongnaeKR_251130.csv"
 OUTPUT_FILENAME = "dongnae_cols.json"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
