@@ -25,6 +25,9 @@ dist/
 # Testing
 .pytest_cache/
 .coverage
+debug/
+benchmark/
+debug.py
 
 # --------------------------------------------------------------------
 # JavaScript / Web (Frontend)

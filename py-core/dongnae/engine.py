@@ -7,21 +7,20 @@ import csv
 import math
 from typing import List, Dict, Optional, Union, TypedDict
 
-# [Improvement] 데이터 구조 명시를 위한 TypedDict 정의
-# total=False를 사용하여 distance, score 등 동적 필드 허용
+
 class DongnaeData(TypedDict, total=False):
     dnid: str
     dnname: str
     dnlatitude: float
     dnlongitude: float
     dnradius: float
-    distance: float  # Injected during runtime
-    score: float     # Injected during runtime
+    distance: float
+    score: float
 
 class DongnaeEngine:
     def __init__(self, csv_path: str = None):
         self._dongnaes: List[DongnaeData] = []
-        self._id_map: Dict[str, DongnaeData] = {}  # [Improvement] O(1) ID 조회를 위한 인덱스
+        self._id_map: Dict[str, DongnaeData] = {}
         
         # Default Haversine coefficients (Based on Korea, approx 37N)
         # Will be updated automatically in load()
@@ -64,9 +63,8 @@ class DongnaeEngine:
             raise ValueError(f"Failed to load CSV: {csv_path}. Tried encodings: {encodings}.")
 
         # -------------------------------------------------------
-        # [Improvement] Build ID Index (HashMap) for O(1) lookup
+        # Build ID Index (HashMap) for O(1) lookup
         # -------------------------------------------------------
-        # 리스트의 객체를 그대로 참조(Reference)하므로 메모리 효율적임
         if self._dongnaes:
             self._id_map = {d['dnid']: d for d in self._dongnaes}
 
@@ -244,3 +242,20 @@ class DongnaeEngine:
         """
         return self._id_map.get(str(dnid))
     
+    def howfar(self, lat: float, lon: float, dnid: str) -> Optional[float]:
+            """
+            [Calculator] Calculates the 'Boundary Distance' from a specific coordinate to a target Dongnae (ID).
+            
+            Returns:
+                float: Distance in km. 
+                    (+) Positive value means outside the boundary.
+                    (-) Negative value means inside the boundary.
+                None: If the dnid does not exist.
+            """
+            # 1. Lookup if dnid is valid Dongnae ID; if not, return None
+            dn = self.get(dnid)
+            if not dn:
+                return None
+                
+            # 2. if dnid is valid, return Boundary Distance (Distance - Radius)
+            return self._dongnae_dist(lat, lon, dn)
