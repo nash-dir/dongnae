@@ -1,6 +1,8 @@
 # **dongnae v.0.2.0** 
 
 [![PyPI version](https://badge.fury.io/py/dongnae.svg)](https://badge.fury.io/py/dongnae)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Versions](https://img.shields.io/pypi/pyversions/dongnae.svg)](https://pypi.org/project/dongnae/)
 
 ## **Lightest Possible Spatial Engine**
 

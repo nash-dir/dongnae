@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dongnae"
 version = "0.2.0"
-description = "Lightest Possible Spatial Engine"
+description = "Ultra lightweight, self contained, Quasi-Geocoding Engine"
 readme = "README.md"
 requires-python = ">=3.7"
 license = {file = "LICENSE.txt"}
