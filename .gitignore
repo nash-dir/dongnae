@@ -26,7 +26,6 @@ dist/
 .pytest_cache/
 .coverage
 debug/
-benchmark/
 debug.py
 
 # Under construction
