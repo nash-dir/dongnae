@@ -53,10 +53,10 @@
 
   * $O(1)$ **ID Lookup**: Instant retrieval by ID using an internal Hash Map.  
 
-  * **Proven Performance**: In an internal benchmark with `dongnae-kr` (carved from ROK Regional Geometry data) & 10k random points, `dongnae` was **~20x faster** than `VWorld API response`.
-      * **Top-1 Accuracy**: 72.1% (Pinpoint precision)
-      * **Top-3 Accuracy**: **97.27%** (Practical precision)
-      * **Miss Rate**: 2.73% (Not within top 3)
+  * **Proven Performance**: In an `benchmark` with `dongnae-kr 2025.11.30` dataset package (carved from ROK Regional Geometry data) & 10k random points, `dongnae` was **~15x faster (in midnight environment)** than `VWorld API response`.
+      * **Top-1 Accuracy**: 71.67% (Pinpoint precision)
+      * **Top-3 Accuracy**: **97.31%** (Practical precision)
+      * **Miss Rate**: 2.69% (Not within top 3)
 
 
 * **Self-contained**

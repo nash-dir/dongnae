@@ -14,8 +14,8 @@ This document details the performance benchmark results of `dongnae 0.2.0` engin
 
 * **Data Collection Loop**
   * Create random point within Lat/Lon grid.
-  * Lookup coordiate's real address with `VWorld` reverse-geocoding API, checking response time in millisecond scale, and record if its address is valid.
-  * Retrieve 3 `nearest` dongnae candidates from that coordiate with `dongnae-kr 0.1.0` package, checking response time in millisecond scale.
+  * Lookup coordinate's real address with `VWorld` reverse-geocoding API, checking response time in millisecond scale, and record if its address is valid.
+  * Retrieve 3 `nearest` dongnae candidates from that coordinate with `dongnae-kr 0.1.0` package, checking response time in millisecond scale.
 
 * **Evaluation**
   * For accuracy real address falls within 3 `nearest` dongnae candidates.
