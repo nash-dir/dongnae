@@ -47,7 +47,7 @@ Since `dongnae` uses a simplified circular model (Radius) instead of precise pol
 ### Interpretation
 * **Pinpoint Precision (71.67%)**: Due to irregular shapes of boundaries, the nearest center point might not always be the correct district in border areas.
 * **Practical Precision (97.31%)**: For most location-based services (delivery, recommendations, tagging), considering the top-3 nearest neighborhoods covers **97.31%** of user intent.
-* **Conclusion**: `dongnae` provides a massive speed advantage (~15x) with a tolerable practical error rate (2.69%) for non-critical mile-sclae spatial applications.
+* **Conclusion**: `dongnae` provides a massive speed advantage (~15x) with a tolerable practical error rate (2.69%) for non-critical mile-scale spatial applications.
 
 ---
 *Last Updated: 2025-12-03*
