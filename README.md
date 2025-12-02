@@ -45,7 +45,7 @@
   * **Ultra lightweight** : Does not require heavy GIS libraries (pandas, geopandas, or shapely)
 
 
-* **Lightning Fast**
+* **Lightning Fast & Practical Accuracy**
 
   * **Auto-Calibration**: Calculates Haversine coefficients once upon loading, avoiding repeated trigonometric operations (cos, sin) during queries.  
 
@@ -53,7 +53,10 @@
 
   * $O(1)$ **ID Lookup**: Instant retrieval by ID using an internal Hash Map.  
 
-  * In internal benchmark with ROK Regional Geometry data, `dongnae` guessing was ~20x faster than `VWorld API response` in the cost of ~20% lesser accuracy.
+  * **Proven Performance**: In an internal benchmark with `dongnae-kr` (carved from ROK Regional Geometry data) & 10k random points, `dongnae` was **~20x faster** than `VWorld API response`.
+      * **Top-1 Accuracy**: 72.1% (Pinpoint precision)
+      * **Top-3 Accuracy**: **97.27%** (Practical precision)
+      * **Miss Rate**: 2.73% (Not within top 3)
 
 
 * **Self-contained**

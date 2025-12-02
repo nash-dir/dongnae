@@ -1,0 +1,21 @@
+==================================================
+[Benchmark Report]
+==================================================
+Date: 2025-12-03 00:27:36
+Total Samples: 10000
+
+--------------------------------------------------
+1. Speed (Average Latency)
+   - API (Network)   : 44.71 ms
+   - Local (Dongnae) : 2.9785 ms
+
+2. Accuracy (Performance)
+   - Top-1 Accuracy : 71.67%
+   - Top-3 Accuracy : 97.31%
+   - Miss Rate      : 2.69%
+
+--------------------------------------------------
+[Conclusion]
+dongnae-kr is approximately 15.0x faster than the external API.
+Top-3 accuracy stands at 97.31%.
+==================================================
