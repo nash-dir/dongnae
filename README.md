@@ -57,6 +57,7 @@
       * **Top-1 Accuracy**: 71.67% (Pinpoint precision)
       * **Top-3 Accuracy**: **97.31%** (Practical precision)
       * **Miss Rate**: 2.69% (Not within top 3)
+      * *`Benchmark` results are based on random coordinate sampling within South Korea and string-matching against VWorld API address responses. Results may vary depending on dataset and evaluation criteria.*
 
 
 * **Self-contained**
