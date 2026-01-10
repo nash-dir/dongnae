@@ -1,4 +1,4 @@
-import { DongnaeEngine } from '../src/engine.js';
+import { DongnaeEngine } from './src/engine.js';
 
 let engine = null;
 const resultArea = document.getElementById('result-area');
