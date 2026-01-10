@@ -6,12 +6,11 @@ import sys
 
 # 설정
 PORT = 8000
-DEMO_PATH = "/examples/web-demo/index.html"
+DEMO_PATH = "/index.html"
 
 def run_server():
     # 현재 스크립트 위치를 루트로 설정
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    root_dir = os.path.dirname(current_dir)  # 한 단계 위로 이동
+    root_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(root_dir)
 
     handler = http.server.SimpleHTTPRequestHandler
