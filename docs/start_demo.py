@@ -10,7 +10,8 @@ DEMO_PATH = "/examples/web-demo/index.html"
 
 def run_server():
     # 현재 스크립트 위치를 루트로 설정
-    root_dir = os.path.dirname(os.path.abspath(__file__))
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(current_dir)  # 한 단계 위로 이동
     os.chdir(root_dir)
 
     handler = http.server.SimpleHTTPRequestHandler
