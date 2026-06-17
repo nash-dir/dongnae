@@ -1,0 +1,5 @@
+# Repository is LF-normalized. Pin LF in repo + working tree across all
+# platforms so line endings are deterministic and Git stops warning about
+# autocrlf CRLF conversion. (All tracked blobs are already LF, so adding
+# this changes no file content.)
+* text=auto eol=lf
