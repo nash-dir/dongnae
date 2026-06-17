@@ -59,15 +59,16 @@
 
   * **Auto-Calibration**: Calculates Haversine coefficients once upon loading, avoiding repeated trigonometric operations (cos, sin) during queries.  
 
-  * **Spatial Indexing**: Uses dynamic Bounding Box (BBox) filtering to minimize search space.  
+  * **Bounding-Box Pre-filtering**: A dynamic BBox narrows the linear scan to a local candidate set before distance calculation. (It is a pre-filter, not a persistent spatial index; spatial queries are still O(n) over the candidates, while ID lookup is O(1).)
 
   * $O(1)$ **ID Lookup**: Instant retrieval by ID using an internal Hash Map.  
 
-  * **Proven Performance**: In an `benchmark` with `dongnae-kr 2025.11.30` dataset package (carved from ROK Regional Geometry data) & 10k random points, `dongnae` was **~15x faster (in midnight environment)** than `VWorld API response`.
+  * **Proven Performance**: In a `benchmark` with the `dongnae-kr 2025.11.30` dataset package (carved from ROK Regional Geometry data) & 10k random points, `dongnae` was **~15x faster (in midnight environment)** than `VWorld API response`.
       * **Top-1 Accuracy**: 71.67% (Pinpoint precision)
       * **Top-3 Accuracy**: **97.31%** (Practical precision)
       * **Miss Rate**: 2.69% (Not within top 3)
       * *`Benchmark` results are based on random coordinate sampling within South Korea and string-matching against VWorld API address responses. Results may vary depending on dataset and evaluation criteria.*
+      * *The speed figure compares a **local in-process lookup** against a **remote network API call** — meaningful for "offline vs API", but not an algorithm-to-algorithm comparison. A like-for-like local baseline (e.g. geopandas/shapely) is future work.*
 
 
 * **Self-contained**
@@ -154,7 +155,7 @@ This project is architected as a **monorepo** supporting multiple languages, as 
 ## 📊 Performance
 
 In internal benchmarks against public Government APIs (VWorld), `dongnae`:
-* **Speed**: ~20x Faster (0.009s vs 0.16s)
-* **Accuracy**: **97.3%** Top-3 Hit Rate for neighborhood identification.
+* **Speed**: ~20x Faster (0.009s vs 0.16s) — a **local lookup vs a network API call**; the gap is dominated by network round-trip, not algorithmic superiority.
+* **Accuracy**: **97.3%** Top-3 Hit Rate for neighborhood identification (name-substring match against VWorld address text).
 
 > *`dongnae` is designed to be "Good Enough" for ~95% of semantic spatial problems, while being "Orders of Magnitude" faster and cheaper.*

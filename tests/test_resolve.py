@@ -63,3 +63,25 @@ def test_resolve_on_empty_engine_returns_empty():
     from dongnae import DongnaeEngine
 
     assert DongnaeEngine().resolve(36.0, 127.0) == []
+
+
+def test_resolve_zero_radius_node_on_centre_does_not_crash(write_csv):
+    # A radius-0 node queried exactly at its centre makes the score's
+    # denominator (radius * threshold) zero. It must not raise ZeroDivisionError;
+    # a perfectly-centred point scores 0.0.
+    from dongnae import DongnaeEngine
+
+    from conftest import rows_to_csv
+
+    path = write_csv(rows_to_csv([("1", "점", 36.0, 127.0, 0.0)]), encoding="utf-8")
+    eng = DongnaeEngine(path)
+
+    matches = eng.resolve(36.0, 127.0, threshold=1.0)
+    assert len(matches) == 1
+    assert matches[0]["score"] == 0.0
+
+
+def test_resolve_threshold_zero_does_not_crash(engine):
+    # threshold=0 also zeroes the denominator (radius * 0); must not raise.
+    result = engine.resolve(36.0, 127.0, threshold=0.0)
+    assert isinstance(result, list)

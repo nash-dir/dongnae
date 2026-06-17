@@ -1,0 +1,9 @@
+# Benchmark-only dependencies (NOT part of the dongnae runtime; the library
+# itself stays dependency-free).
+requests
+pandas
+python-dotenv
+
+# The benchmark also needs the engine + Korean dataset under test. From repo root:
+#   pip install ./py-core ./py-data-kr
+# And a VWorld API key in benchmark/.env (API_KEY=...) for a real (non-simulated) run.

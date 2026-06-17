@@ -45,11 +45,11 @@
 
   * **Auto-Calibration**: Calculates Haversine coefficients once upon loading, avoiding repeated trigonometric operations (cos, sin) during queries.  
 
-  * **Spatial Indexing**: Uses dynamic Bounding Box (BBox) filtering to minimize search space.  
+  * **Bounding-Box Pre-filtering**: A dynamic BBox narrows the linear scan to a local candidate set before distance calculation. (A pre-filter, not a persistent spatial index — spatial queries remain O(n) over candidates; ID lookup is O(1).)
 
   * $O(1)$ **ID Lookup**: Instant retrieval by ID using an internal Hash Map.  
 
-  * In internal benchmark with ROK Regional Geometry data, `dongnae` guessing was ~20x faster than `VWorld API response` in the cost of ~20% lesser accuracy.
+  * In an internal benchmark with ROK Regional Geometry data, `dongnae` was ~20x faster than a `VWorld API` response at the cost of ~20% lower accuracy. (The speed gap is a local lookup vs a network call, not an algorithm-to-algorithm comparison.)
 
 
 * **Self-contained**

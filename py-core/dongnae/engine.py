@@ -18,15 +18,20 @@ class DongnaeData(TypedDict, total=False):
     score: float
 
 class DongnaeEngine:
-    def __init__(self, csv_path: str = None):
+    def __init__(self, csv_path: Optional[str] = None):
         self._dongnaes: List[DongnaeData] = []
         self._id_map: Dict[str, DongnaeData] = {}
-        
+
         # Default Haversine coefficients (Based on Korea, approx 37N)
         # Will be updated automatically in load()
         self._lat_coef = 111.0
         self._lon_coef = 88.8
-        
+
+        # Largest dongnae radius in the dataset. Drives the bounding-box
+        # pre-filter buffer so that a node is never dropped from a candidate
+        # set just because its radius is large. Recalculated in load().
+        self._max_radius = 0.0
+
         # load CSV if path provided
         if csv_path:
             self.load(csv_path)
@@ -96,6 +101,10 @@ class DongnaeEngine:
             self._lat_coef = 111.0
             self._lon_coef = round(111.0 * math.cos(math.radians(avg_lat)), 2)
 
+            # Track the largest radius so the bbox pre-filter buffer can adapt
+            # to the dataset instead of assuming a fixed maximum.
+            self._max_radius = max(d['dnradius'] for d in self._dongnaes)
+
     def _calc_dist(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """
         [Geometric Distance] Calculates distance between two points (Haversine approximation).
@@ -123,14 +132,18 @@ class DongnaeEngine:
         nearest = self.nearest(lat, lon, k=1)
         return nearest[0] if nearest else None
 
-    def nearest(self, lat: float, lon: float, k: int = 1, radius_km: float = None) -> List[DongnaeData]:
+    def nearest(self, lat: float, lon: float, k: int = 1, radius_km: Optional[float] = None) -> List[DongnaeData]:
         """
         Returns the K nearest Dongnaes sorted by 'Boundary Distance'.
         :param radius_km: Used to limit the search range (performance optimization)
         """
         # 1. Primary filtering (Bounding Box)
-        # Search range = (Requested Radius OR Default 10km) + Max Dongnae Radius Buffer(5km)
-        scan_radius = (radius_km if radius_km else 10.0) + 5.0
+        # Search range = (Requested Radius OR Default 10km) + the dataset's
+        # largest radius. The radius buffer guarantees a node whose *boundary*
+        # falls in range is never excluded by a centre-based bbox, no matter how
+        # large its radius. `is not None` keeps radius_km=0 a valid (zero) range.
+        effective_range = radius_km if radius_km is not None else 10.0
+        scan_radius = effective_range + self._max_radius
         
         # Dynamic bbox calculation using current coefficients
         lat_delta = scan_radius / self._lat_coef
@@ -159,17 +172,23 @@ class DongnaeEngine:
         results.sort(key=lambda x: x['distance'])
         return results[:k]
 
-    def within(self, lat: float, lon: float, radius_km: float, limit: int = None) -> List[DongnaeData]:
+    def within(self, lat: float, lon: float, radius_km: float, limit: Optional[int] = None) -> List[DongnaeData]:
         """
         [Radius Search] Returns all Dongnaes whose boundaries are within R km.
         """
-        return self.nearest(lat, lon, k=limit if limit else len(self._dongnaes), radius_km=radius_km)
+        # `is not None` so limit=0 means "no results", not "all results".
+        k = limit if limit is not None else len(self._dongnaes)
+        return self.nearest(lat, lon, k=k, radius_km=radius_km)
 
     def resolve(self, lat: float, lon: float, threshold: float = 1.0) -> List[DongnaeData]:
         """
         [Soft Geofencing] Determine if coordinates fall within a specific Dongnae's effective radius.
         """
-        max_scan = 15.0 * threshold
+        # A node can match only if its centre is within radius * threshold of
+        # the query, so the bbox must span the largest possible such distance:
+        # max_radius * threshold. (Previously a fixed 15 km, which silently
+        # dropped any node with radius > 15 km.)
+        max_scan = self._max_radius * threshold
         lat_delta = max_scan / self._lat_coef
         lon_delta = max_scan / self._lon_coef
 
@@ -189,8 +208,10 @@ class DongnaeEngine:
                 
                 raw_dist = b_dist + dn['dnradius']
                 limit_dist = dn['dnradius'] * threshold
-                
-                dn_res['score'] = round(raw_dist / limit_dist, 2)
+
+                # limit_dist is 0 when radius or threshold is 0; a matching point
+                # is then exactly on-centre, so it scores a perfect 0.0.
+                dn_res['score'] = round(raw_dist / limit_dist, 2) if limit_dist else 0.0
                 matches.append(dn_res)
         
         matches.sort(key=lambda x: x['score'])
@@ -254,19 +275,19 @@ class DongnaeEngine:
         return self._id_map.get(str(dnid))
     
     def howfar(self, lat: float, lon: float, dnid: str) -> Optional[float]:
-            """
-            [Calculator] Calculates the 'Boundary Distance' from a specific coordinate to a target Dongnae (ID).
-            
-            Returns:
-                float: Distance in km. 
-                    (+) Positive value means outside the boundary.
-                    (-) Negative value means inside the boundary.
-                None: If the dnid does not exist.
-            """
-            # 1. Lookup if dnid is valid Dongnae ID; if not, return None
-            dn = self.get(dnid)
-            if not dn:
-                return None
-                
-            # 2. if dnid is valid, return Boundary Distance (Distance - Radius)
-            return self._dongnae_dist(lat, lon, dn)
+        """
+        [Calculator] Calculates the 'Boundary Distance' from a specific coordinate to a target Dongnae (ID).
+
+        Returns:
+            float: Distance in km.
+                (+) Positive value means outside the boundary.
+                (-) Negative value means inside the boundary.
+            None: If the dnid does not exist.
+        """
+        # 1. Lookup if dnid is valid Dongnae ID; if not, return None
+        dn = self.get(dnid)
+        if not dn:
+            return None
+
+        # 2. if dnid is valid, return Boundary Distance (Distance - Radius)
+        return self._dongnae_dist(lat, lon, dn)

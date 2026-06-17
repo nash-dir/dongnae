@@ -12,19 +12,25 @@ export class DongnaeEngine {
         this.count = this.ids.length;
 
         // 2. 계수 자동 보정 (Auto-Calibration)
-        // 데이터 전체를 순회하지 않고 min/max만 빠르게 찾아서 평균 계산
-        let minLat = 90, maxLat = -90;
-        // 샘플링으로 속도 최적화 (100개 단위)
-        for (let i = 0; i < this.count; i += 100) {
+        // 위도 전체를 순회하여 min/max와 최대 반경을 구합니다.
+        // (100개 샘플링은 진짜 극값을 놓쳐 Python 코어와 계수가 달라질 수 있으므로
+        //  전수 스캔으로 통일. 초기화 1회뿐이라 비용은 무시할 수준입니다.)
+        let minLat = 90, maxLat = -90, maxRad = 0;
+        for (let i = 0; i < this.count; i++) {
             const val = this.lats[i];
             if (val < minLat) minLat = val;
             if (val > maxLat) maxLat = val;
+            if (this.rads[i] > maxRad) maxRad = this.rads[i];
         }
         const avgLat = (minLat + maxLat) / 2.0;
 
         this.latCoef = 111.0;
         // JS의 Math.cos는 라디안을 받습니다.
         this.lonCoef = +(111.0 * Math.cos(avgLat * (Math.PI / 180))).toFixed(2);
+
+        // 데이터셋 내 최대 반경. bbox 버퍼가 이 값을 따라가도록 하여
+        // 큰 반경 노드가 후보에서 누락되지 않게 합니다. (Python 코어와 동일)
+        this.maxRadius = maxRad;
 
         // 3. ID 검색용 인덱스 생성 (O(1) Lookup)
         this.idMap = new Map();
@@ -82,8 +88,8 @@ export class DongnaeEngine {
         // (중심점까지의 거리) - (동네 반경)
         const dist = this._dongnaeDist(lat, lon, idx);
 
-        // 3. 소수점 4자리 반올림 (nearest 메서드 등과 일관성 유지)
-        return parseFloat(dist.toFixed(4));
+        // raw 값 반환 (Python 코어 howfar과 동일하게 반올림하지 않음)
+        return dist;
     }
 
     /**
@@ -99,7 +105,10 @@ export class DongnaeEngine {
      */
     nearest(lat, lon, k = 1, radiusKm = null) {
         // 1. Bounding Box Filtering
-        const scanRadius = (radiusKm || 10.0) + 5.0;
+        // 검색 범위 + 데이터셋 최대 반경(버퍼). 큰 반경 노드도 후보에 포함되도록 보장.
+        // (?? 사용: radiusKm=0도 유효한 0 범위로 취급, falsy 함정 방지)
+        const effectiveRange = radiusKm ?? 10.0;
+        const scanRadius = effectiveRange + this.maxRadius;
         const latDelta = scanRadius / this.latCoef;
         const lonDelta = scanRadius / this.lonCoef;
 
@@ -121,6 +130,16 @@ export class DongnaeEngine {
             }
         }
 
+        // Fallback parity with the Python core: if the bbox produced no
+        // candidates and no radius limit was given, scan the whole dataset so
+        // where()/nearest() stay total (never empty for a non-empty dataset).
+        if (candidates.length === 0 && radiusKm === null) {
+            for (let i = 0; i < this.count; i++) {
+                const bDist = this._dongnaeDist(lat, lon, i);
+                candidates.push({ idx: i, dist: parseFloat(bDist.toFixed(4)) });
+            }
+        }
+
         // 2. Sort by Distance
         candidates.sort((a, b) => a.dist - b.dist);
 
@@ -133,14 +152,16 @@ export class DongnaeEngine {
      */
     within(lat, lon, radiusKm, limit = null) {
         const results = this.nearest(lat, lon, this.count, radiusKm);
-        return limit ? results.slice(0, limit) : results;
+        // limit != null: limit=0이면 빈 배열 (falsy 함정 방지)
+        return limit != null ? results.slice(0, limit) : results;
     }
 
     /**
      * [Soft Geofencing] 특정 영역 포함 여부 판정
      */
     resolve(lat, lon, threshold = 1.0) {
-        const maxScan = 15.0 * threshold;
+        // 매칭 가능한 최대 중심거리 = maxRadius * threshold. (고정 15km 가정 제거)
+        const maxScan = this.maxRadius * threshold;
         const latDelta = maxScan / this.latCoef;
         const lonDelta = maxScan / this.lonCoef;
 
@@ -160,7 +181,9 @@ export class DongnaeEngine {
                 if (bDist <= radius * (threshold - 1.0)) {
                     const rawDist = bDist + radius;
                     const limitDist = radius * threshold;
-                    const score = parseFloat((rawDist / limitDist).toFixed(2));
+                    // limitDist 0 (radius/threshold 0) => 정확히 중심점, score 0.0
+                    // (Python 코어와 동일, NaN 방지)
+                    const score = limitDist ? parseFloat((rawDist / limitDist).toFixed(2)) : 0.0;
 
                     matches.push(this._getAt(i, parseFloat(bDist.toFixed(4)), score));
                 }
@@ -175,7 +198,9 @@ export class DongnaeEngine {
      * [Text Search] 키워드 검색
      */
     search(keyword, limit = 5, bestShot = true) {
-        const queryTokens = keyword.trim().split(/\s+/);
+        // filter(Boolean): 빈 문자열/공백 입력 시 [""]가 되어 모든 이름에
+        // 매칭되는 버그 방지. 토큰이 없으면 결과 없음으로 처리.
+        const queryTokens = keyword.trim().split(/\s+/).filter(Boolean);
         if (queryTokens.length === 0) return bestShot ? null : [];
 
         const scoredList = [];

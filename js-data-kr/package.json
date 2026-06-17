@@ -1,7 +1,7 @@
 {
     "name": "@dongnae-js/data-kr",
     "version": "0.1.0",
-    "description": "Korean district (Dongnae) search engine with optimized spatial indexing. Under development.",
+    "description": "Korean district (Dongnae) search engine. Experimental / under development — not published to npm.",
     "type": "module",
     "main": "./src/engine.js",
     "exports": {
@@ -9,13 +9,12 @@
     },
     "files": [
         "src",
-        "LICENSE",
-        "README.md",
-        "index.d.ts"
+        "LICENSE.txt",
+        "README.md"
     ],
-    "types": "index.d.ts",
+    "types": "./src/index.d.ts",
     "scripts": {
-        "test": "node examples/web-demo/main.js"
+        "test": "node --test"
     },
     "keywords": [
         "korea",

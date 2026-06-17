@@ -18,7 +18,8 @@ def run_server():
     # 포트 재사용 허용 (서버 껐다 켰을 때 에러 방지)
     socketserver.TCPServer.allow_reuse_address = True
 
-    with socketserver.TCPServer(("", PORT), handler) as httpd:
+    # Bind to localhost only: this is a local demo, not a LAN-exposed service.
+    with socketserver.TCPServer(("127.0.0.1", PORT), handler) as httpd:
         url = f"http://localhost:{PORT}{DEMO_PATH}"
         print(f"\nStarting DongnaeJS Demo...")
         print(f"Serving at: {url}")

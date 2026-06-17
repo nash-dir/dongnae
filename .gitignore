@@ -30,8 +30,17 @@ debug.py
 
 # Under construction
 js-core/
-data/
 forge/
+
+# Data: keep the conversion tooling (data/*.py) in VCS so the JS dataset is
+# reproducible from a clone, but keep the heavy source/intermediate artifacts out.
+data/*.csv
+data/*.json
+js-data-kr/src/dongnae_cols.json
+
+# Benchmark outputs accumulate per run; the one committed result is kept as
+# provenance, future runs are ignored.
+benchmark/result/
 
 # --------------------------------------------------------------------
 # JavaScript / Web (Frontend)
@@ -65,13 +74,9 @@ ehthumbs.db
 # 테스트 실행 시 생성되는 임시 CSV 파일 무시
 test_*.csv
 
-# [선택사항] 원본 데이터 관리 정책에 따라 선택하세요.
-# 1. 원본 데이터를 Repo에 포함시킨다면 주석 처리 (현재 1.7MB라 커밋해도 무방)
-# data/*.csv
-
-# 2. 보안상 중요하거나 용량이 너무 크다면 무시 (Git LFS 사용 권장)
-# *.csv
-# !data/sample.csv  # 샘플만 예외적으로 허용할 경우
+# Note: the packaged dataset (py-data-kr/dongnae_kr/data/*.csv and
+# js-data-kr/src/dongnae_data.js) is committed deliberately — those are the
+# shipped artifacts. Only the top-level data/ working copies are ignored above.
 
 # etc.
 todo.md

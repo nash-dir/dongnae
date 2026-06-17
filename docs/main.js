@@ -130,6 +130,17 @@ window.getGPS = (target) => {
     );
 };
 
+// [Helper] HTML 이스케이프 — innerHTML에 데이터 값을 넣기 전 항상 거칩니다.
+// 현재 데이터셋은 신뢰 가능하지만, 사용자/외부 데이터가 섞여도 안전하도록 방어.
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // 7. 렌더링 함수
 function renderResults(list, titleHtml) {
     if (!resultArea) return;
@@ -161,14 +172,14 @@ function renderResults(list, titleHtml) {
             metaInfo = `<span>매칭 점수: ${item.score}</span>`;
         }
 
-        if (item.dnradius) badge = `<span class="badge">R ${item.dnradius}km</span>`;
+        if (item.dnradius) badge = `<span class="badge">R ${escapeHtml(item.dnradius)}km</span>`;
 
         html += `
             <div class="result-card">
-                <div class="result-title">${item.dnname}${badge}</div>
+                <div class="result-title">${escapeHtml(item.dnname)}${badge}</div>
                 <div class="result-meta">
                     ${metaInfo} <br>
-                    <span style="color:#94a3b8; font-size:0.8em;">ID: ${item.dnid}</span>
+                    <span style="color:#94a3b8; font-size:0.8em;">ID: ${escapeHtml(item.dnid)}</span>
                 </div>
             </div>
         `;

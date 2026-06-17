@@ -78,8 +78,22 @@ def query_vworld_api(lat, lon):
     return False, None, 0.0
 
 def run_benchmark():
+    # Deterministic coordinate sampling so repeated runs are comparable.
+    random.seed(42)
+
+    simulated = not VWORLD_API_KEY
+    if simulated:
+        print(
+            "\n" + "!" * 64 + "\n"
+            "WARNING: No VWORLD API_KEY found (benchmark/.env). SIMULATION MODE.\n"
+            "  Ground-truth addresses and API latencies are FAKE. The accuracy\n"
+            "  and speed numbers below are NOT meaningful and must not be cited.\n"
+            "  Set API_KEY in benchmark/.env for a real benchmark.\n"
+            + "!" * 64
+        )
+
     print(f"\nStarting benchmark (Target: {TARGET_COUNT})...")
-    
+
     results = []
     collected = 0
     
@@ -140,8 +154,8 @@ def run_benchmark():
     avg_dn_time = df['dongnae_time_ms'].mean()
     
     # Accuracy Calculation
-    top1_count = len(df[df['top1_match'] == True])
-    top3_count = len(df[df['top3_match'] == True])
+    top1_count = int(df['top1_match'].sum())
+    top3_count = int(df['top3_match'].sum())
     
     top1_accuracy = (top1_count / TARGET_COUNT) * 100
     top3_accuracy = (top3_count / TARGET_COUNT) * 100
@@ -152,7 +166,8 @@ def run_benchmark():
 
     # 3. Generate Report (TXT)
     timestamp = datetime.now().strftime('%y%m%d_%H%M')
-    file_base_name = f"benchmark_strict_{timestamp}"
+    mode_tag = "SIMULATED" if simulated else "strict"
+    file_base_name = f"benchmark_{mode_tag}_{timestamp}"
     
     # Save CSV
     if not os.path.exists(RESULT_DIR):
@@ -161,11 +176,19 @@ def run_benchmark():
     df.to_csv(csv_path, index=False, encoding='utf-8-sig')
 
     # Write TXT Report
+    banner = ""
+    if simulated:
+        banner = (
+            "*** SIMULATION MODE - FAKE DATA, NUMBERS ARE NOT MEANINGFUL ***\n"
+            "*** Set API_KEY in benchmark/.env for a real run.          ***\n\n"
+        )
+
     report_text = f"""
 ==================================================
 [Benchmark Report]
 ==================================================
-Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+{banner}Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Mode: {'SIMULATION (fake data)' if simulated else 'Live API'}
 Total Samples: {TARGET_COUNT}
 
 --------------------------------------------------
@@ -173,14 +196,21 @@ Total Samples: {TARGET_COUNT}
    - API (Network)   : {avg_api_time:.2f} ms
    - Local (Dongnae) : {avg_dn_time:.4f} ms
 
+   NOTE: 'API' includes internet round-trip latency; 'Local' is in-process
+   compute. This contrasts a remote network service with a local function -
+   meaningful for "API call vs offline lookup", but NOT an algorithm-to-
+   algorithm comparison. A like-for-like local baseline (e.g. geopandas/
+   shapely) is future work.
+
 2. Accuracy (Performance)
    - Top-1 Accuracy : {top1_accuracy:.2f}%
    - Top-3 Accuracy : {top3_accuracy:.2f}%
    - Miss Rate      : {miss_rate:.2f}%
+   (Accuracy = dongnae name appears as a substring of the API address text.)
 
 --------------------------------------------------
 [Conclusion]
-dongnae-kr is approximately {speed_multiplier:.1f}x faster than the external API.
+dongnae-kr is approximately {speed_multiplier:.1f}x faster than the external API call.
 Top-3 accuracy stands at {top3_accuracy:.2f}%.
 ==================================================
     """.strip()

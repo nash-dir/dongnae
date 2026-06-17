@@ -4,10 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dongnae-kr"
-version = "2025.11.30" 
+# CalVer (YYYY.MM.DD) is intentional: this is a data package whose version
+# tracks the bundled dataset's vintage, not an API. The engine uses SemVer.
+version = "2025.11.30"
 description = "Korean dataset plugin for dongnae engine"
 readme = "README.md"
-requires-python = ">=3.7"
+# Matches the engine: dongnae relies on typing.TypedDict (3.8+).
+requires-python = ">=3.8"
 license = {file = "LICENSE.txt"}
 authors = [{name = "nash-dir"}]
 dependencies = [

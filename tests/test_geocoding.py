@@ -107,3 +107,9 @@ def test_within_limit_caps_results(engine):
 def test_within_tight_radius_returns_only_enclosing_node(engine):
     results = engine.within(36.0, 127.0, radius_km=0.0)
     assert [r["dnname"][-3:] for r in results] == ["역삼동"]
+
+
+def test_within_limit_zero_returns_empty(engine):
+    # limit=0 means "no results", not "all results" — guard against the falsy
+    # `limit if limit else len(...)` trap.
+    assert engine.within(36.0, 127.0, radius_km=100.0, limit=0) == []
