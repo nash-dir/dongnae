@@ -1,8 +1,13 @@
 # **dongnae v.0.2.0** 
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Try_it_Now-blue?style=for-the-badge&logo=githubpages)](https://nash-dir.github.io/dongnae/)
+
+[![CI](https://github.com/nash-dir/dongnae/actions/workflows/ci.yml/badge.svg)](https://github.com/nash-dir/dongnae/actions/workflows/ci.yml)
 [![PyPI version](https://badge.fury.io/py/dongnae.svg)](https://badge.fury.io/py/dongnae)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Versions](https://img.shields.io/pypi/pyversions/dongnae.svg)](https://pypi.org/project/dongnae/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> **▶ Try it live (no install):** **<https://nash-dir.github.io/dongnae/>**
 
 ## **Lightest Possible Spatial Engine**
 
@@ -18,15 +23,20 @@
 
 * **Quasi-Geocoding to `Dongnae`**
 
-  * Sometimes you just want to lookup `roughly which neighborhood` you are in.
+  * Traditional Geocoding APIs (Google Maps, VWorld) are powerful but often **overkill** for many business logic scenarios. They introduce network latency, API costs, and heavy dependencies. Especially when you just want to lookup `roughly which neighborhood` you are in.
   
-  * Instead of precise street-level addresses, it maps coordinates to the nearest "Dongnae" (Neighborhood/District node), which is not quite precise but still good enough for some applications.
+  * `dongnae` takes a different approach. It trades "pinpoint street-level precision" for **"neighborhood-level semantic accuracy"**, gaining **extreme speed** and **portability** in return. Instead of precise street-level addresses, it maps coordinates to the nearest `Dongnae` (Neighborhood/District node), which is not quite precise but still good enough for some applications. 
 
   * Key concept of this engine is **"dongnae"** - an object that has ID(dnid), Name(dnname), 2D coordinates(dnlatitude, dnlongitude), and radius(dnradius).
 
-  * Dictionary of dongnaes should be loaded from CSV / JS prior to using this engine.
+  * Dictionary of dongnaes should be pre-baked and loaded from CSV / JS prior to using this engine.
 
-  * Recommended for lightweight, suggestion-based frontends; e.g. Web / PWAs.
+  * Recommended for lightweight, suggestion-based frontends(e.g. Web / PWAs); ML & DS preprocessing; serverless or edge computing backend(e.g., AWS Lambda, Cloudflare Workers)
+
+
+* **Name and Location based lookup to pre-baked `Dongnae` dictioary**
+
+  * Calculates the ballpark 'Boundary Distance' from a specific coordinate to a target Dongnae.
 
 
 * **Boundary Distance calculation**
@@ -95,176 +105,56 @@ You need a CSV file containing your local spatial nodes. The file **must** have 
 | dnlongitude | Float | X Coordinate |
 | dnradius | Float | Effective radius of the area (km) |
 
+---
 
-### **2\. Installation**
+## ✨ Key Capabilities
 
-  * `dongnae-kr` package containing ready-made Korean Regional data CSV available in `pip`
+`dongnae` is not just a coordinate calculator; it is a spatial decision engine.
 
-``` bash
-pip install dongnae
-```
+### 📍 Reverse Geocoding (`where`)
+> *"Where am I roughly?"*
+* **Function**: Returns the nearest neighborhood node for a given coordinate.
+* **Why use it**: Perfect for identifying user context (e.g., "You are in Gangnam-gu") without triggering expensive API calls.
 
-### **3\. Initiate Dongnae Engine & Load up Dongnae Dictionary**
+### 📏 Service Availability Check (`howfar`)
+> *"Is this point inside our service area?"*
+* **Function**: Calculates the **Boundary Distance** from a specific coordinate to a target neighborhood's edge.
+    * **Negative (-)**: Inside the boundary.
+    * **Positive (+)**: Outside the boundary.
+* **Why use it**: Determines immediate service availability (e.g., Delivery, Pickup) with a single line of code. $O(1)$ complexity via ID lookup.
 
-```python
-import sys
-from dongnae import DongnaeEngine
+### 🔍 Zero-Latency Search (`search`)
+> *"Find 'Pangyo' instantly."*
+* **Function**: Converts text queries into spatial objects without any network request.
+* **Why use it**: Provides instant "Quasi-Geocoding" for search bars. Delivers a zero-latency UX for users typing in locations, even offline.
 
-csv_path = r"./data/dongnaeKR.csv" # Example path
+### 🎯 Soft Geofencing (`resolve`)
+> *"Are they close enough?"*
+* **Function**: Determines if a coordinate falls within a neighborhood's effective radius with an adjustable tolerance threshold.
+* **Why use it**: Useful for loose boundary checks (e.g., "Allow users within 20% buffer of the district").
 
-try:
-    engine = DongnaeEngine() 
-    engine.load(csv_path)
-    print(f"Successfully loaded engine from {csv_path}")
+### 📡 Radius Search (`nearest`, `within`)
+> *"What's nearby?"*
+* **Function**: Finds $K$-nearest neighbors or all nodes within a specific radius.
+* **Why use it**: optimized spatial indexing ensures high performance even with thousands of nodes.
 
-    count = len(engine._dongnaes)
-    print(f"   - Number of Dongnaes: {count:,}")
-    print(f"   - Latitude Coefficient: {engine._lat_coef}")
-    print(f"   - Longitude Coefficient: {engine._lon_coef}")
+---
 
-except Exception as e:
-    print(f"[Fatal] Engine initiation failure: {e}")
-    sys.exit(1)
+## 📦 Packages & Installation
 
-## **Usage Examples**
+This project is architected as a **monorepo** supporting multiple languages, as it may be useful for both backend & frontend applications. Please refer to the specific documentation for installation and API usage.
 
-### **1\. Reverse Geocoding (where)**
+| Language | Package | Description | Documentation |
+| :--- | :--- | :--- | :--- |
+| **Python** | `dongnae` | Pure Python Engine for Backend/Data Ops | [👉 Go to Python Docs](./py-core/README.md) |
+| **JavaScript** | `@dongnae-js/data-kr` | JS Engine for Frontend/Edge | [👉 Go to JS Docs](./js-data-kr/README.md) |
 
-Find the nearest neighborhood for a given coordinate.
+---
 
-```python
-lat, lon = 37.5665, 126.9780
-town = engine.where(lat, lon)
-if town:
-    print(f"Welcome to {town['dnname']}!")
-```
+## 📊 Performance
 
-### **2\. K-Nearest Neighbors (nearest)**
+In internal benchmarks against public Government APIs (VWorld), `dongnae`:
+* **Speed**: ~20x Faster (0.009s vs 0.16s)
+* **Accuracy**: **97.3%** Top-3 Hit Rate for neighborhood identification.
 
-Returns a list of `k nearest nodes` sorted by distance.
-
-Find 3 nearest neighborhoods.
-
-```python
-neighbors = engine.nearest(lat, lon, k=3)
-for n in neighbors:
-    print(f"- {n['dnname']} is {n['distance']}km away")
-```
-
-### **3\. Radius Search (within)**
-
-Find all neighborhoods within a 2km radius.
-
-```python
-spots = engine.within(lat, lon, radius_km=2.0)
-print(f"Found {len(spots)} neighborhoods nearby.")
-```
-
-### **4\. Soft Geofencing (resolve)**
-
-Determines if a coordinate falls within a neighborhood's effective radius, with an optional tolerance buffer (fuzziness).
-Useful for checking "if the user is inside certain district, with some padded buffer", e.g.;
-* threshold=1.0: Strict boundary.
-* threshold=1.2: 20% buffer zone (Loose).
-
-```python
-matches = engine.resolve(lat, lon, threshold=1.2)
-if matches:
-    print(f"You are inside {matches[0]['dnname']}'s area.")
-```
-
-### **5\. Text Search (search)**
-
-Search by name. Supports "Best Shot" (quasi-geocoding mode) or List return.
-
-* **best_shot = True (default)**: Returns a single DongnaeData object. Can be utilized as approximate quasi-geocoding tool. 
-* **best_shot = False**: Returns a list of candidates sorted by relevance score.
-
-```python
-# 1. Best Shot (quasi-geocoding Mode)
-best = engine.search("PalletTown", best_shot=True)
-if best:
-    print(f"Found: {best['dnname']}")
-
-# 2. Search Mode
-candidates = engine.search("PalletTown", best_shot=False)
-for c in candidates:
-    print(f"- {c['dnname']}")
-```
-
-### **6\. ID Lookup (get)**
-
-Instant lookup by ID ($O(1)$).
-
-```python
-info = engine.get("12345467890")
-if info:
-    print(f"Loaded: {info['dnname']} (Radius: {info['dnradius']}km)")
-```
-
-### **7. Boundary Distance Calculator (howfar)**
-
-Calculates the distance from a specific coordinate to the *boundary* of a target Dongnae.
-(Negative value means inside the boundary, Positive means outside)
-
-```python
-target_id = "1234567890"
-distance = engine.howfar(lat, lon, dnid=target_id)
-
-if distance is not None:
-    dn_info = engine.get(target_id)
-    if distance < 0:
-        print(f"You are INSIDE {dn_info['dnname']} ({-distance:.2f}km from edge)")
-    else:
-        print(f"You are OUTSIDE {dn_info['dnname']} ({distance:.2f}km to edge)")
-```
-
-## **API Reference**
-
-### **DongnaeEngine**
-
-#### **\_\_init\_\_(csv\_path: str \= None)**
-
-Initializes the engine. If csv\_path is provided, it calls load().
-
-#### **load(csv\_path: str)**
-
-Loads CSV data, detects encoding (utf-8/cp949), builds the ID index, and auto-calculates distance coefficients based on the dataset's average latitude.
-
-#### **where(lat: float, lon: float) \-\> Optional\[DongnaeData\]**
-
-Returns the single nearest node. Returns None if no data is loaded.
-
-#### **nearest(lat: float, lon: float, k: int \= 1, radius\_km: float \= None) \-\> List\[DongnaeData\]**
-
-Returns a list of `k nearest nodes` sorted by distance.
-
-* radius\_km: Optimization parameter. Only searches within this radius (+ buffer).
-
-#### **within(lat: float, lon: float, radius\_km: float, limit: int \= None) \-\> List\[DongnaeData\]**
-
-Returns all nodes strictly within radius\_km.
-
-#### **resolve(lat: float, lon: float, threshold: float \= 1.0) \-\> List\[DongnaeData\]**
-
-Determines spatial inclusion.
-
-* Returns nodes where distance \<= radius \* (threshold \- 1.0).  
-
-#### **search(keyword: str, limit: int \= 5, best\_shot: bool \= True) \-\> Union\[List\[DongnaeData\], Optional\[DongnaeData\]\]**
-
-Performs a text-based search.
-
-* **best\_shot=True (default)**: Returns a single DongnaeData object. 
-* **best\_shot=False**: Returns a list of candidates sorted by relevance score.
-If keyword is not within dictionary, returns `None`.
-
-#### **get(dnid: str) \-\> Optional\[DongnaeData\]**
-
-Retrieves a node by its dnid using a Hash Map ($O(1)$ complexity).
-If dnid is not within dictionary, returns `None`.
-
-####  **howfar(lat: float, lon: float, dnid: str) \-\> Optional\[float\]**
-
-Calculates the distance from a specific coordinate to the *boundary* of a target Dongnae. (Negative value means inside the boundary, Positive means outside)
-If dnid is not within dictionary, returns `None`.
+> *`dongnae` is designed to be "Good Enough" for ~95% of semantic spatial problems, while being "Orders of Magnitude" faster and cheaper.*

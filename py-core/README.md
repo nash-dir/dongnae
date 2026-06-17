@@ -117,6 +117,7 @@ try:
 except Exception as e:
     print(f"[Fatal] Engine initiation failure: {e}")
     sys.exit(1)
+```
 
 ## **Usage Examples**
 

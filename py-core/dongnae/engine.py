@@ -37,12 +37,23 @@ class DongnaeEngine:
         Also auto-calculates Haversine coefficients based on the dataset's latitude.
         """
         encodings = ['utf-8-sig', 'cp949', 'utf-8']
+        required = ('dnid', 'dnname', 'dnlatitude', 'dnlongitude', 'dnradius')
         loaded = False
-        
+
         for enc in encodings:
             try:
                 with open(csv_path, mode='r', encoding=enc) as f:
                     reader = csv.DictReader(f)
+
+                    # Reject a malformed header up front, even when the file has
+                    # no data rows. Without this, a wrong-schema-but-empty file
+                    # would never hit the per-row column access below and would
+                    # load silently as an empty engine.
+                    if reader.fieldnames is None or any(
+                        col not in reader.fieldnames for col in required
+                    ):
+                        continue
+
                     temp_data: List[DongnaeData] = []
                     for row in reader:
                         temp_data.append({
