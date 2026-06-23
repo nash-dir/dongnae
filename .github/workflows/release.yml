@@ -1,13 +1,14 @@
 name: Publish to PyPI
 
 # Trusted Publishing (OIDC) — no API token is stored anywhere.
-# Fires when a GitHub Release is published; also runnable manually.
+# Fires on pushing a version tag (v*); also runnable manually.
 # PyPI side: register a Trusted Publisher on the `dongnae` project with
 #   owner=nash-dir, repo=dongnae, workflow=release.yml, environment=pypi.
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 permissions:
