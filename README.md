@@ -9,7 +9,7 @@
 
 > **▶ Try it live (no install):** **<https://nash-dir.github.io/dongnae/>**
 
-## **Lightest Possible Spatial Engine**
+## **Ultra-Lightweight, Dependency-Free Spatial Engine**
 
 * **dongnae** is a dependency-free, pure Python library designed for **high-performance reverse geocoding, radius search, spatial lookup, and Area-of-Effect lookup**. It operates from self-contained native script & pre-rendered CSV dataframe. Designed for high-performance microservices and client-side applications.
 
@@ -57,7 +57,7 @@
 
 * **Lightning Fast & Practical Accuracy**
 
-  * **Auto-Calibration**: Calculates Haversine coefficients once upon loading, avoiding repeated trigonometric operations (cos, sin) during queries.  
+  * **Auto-Calibration**: Computes the equirectangular (planar) distance coefficients once upon loading, avoiding repeated trigonometric operations (cos, sin) during queries.  
 
   * **Bounding-Box Pre-filtering**: A dynamic BBox narrows the linear scan to a local candidate set before distance calculation. (It is a pre-filter, not a persistent spatial index; spatial queries are still O(n) over the candidates, while ID lookup is O(1).)
 
@@ -79,7 +79,7 @@
 
   * **Zero authentication** : No authentication, API key required
 
-  * **Zero vulnerability** : No external connections means no attack surface. (You can't hack what doesn't quack.)
+  * **No network attack surface** : The engine opens no network connections, so there is no remote attack surface. (You still control the local CSV / coordinate input you feed it — you can't remotely hack what doesn't quack.)
 
 
 * **Business-Ready Logic**:  
@@ -137,7 +137,7 @@ You need a CSV file containing your local spatial nodes. The file **must** have 
 ### 📡 Radius Search (`nearest`, `within`)
 > *"What's nearby?"*
 * **Function**: Finds $K$-nearest neighbors or all nodes within a specific radius.
-* **Why use it**: optimized spatial indexing ensures high performance even with thousands of nodes.
+* **Why use it**: a bounding-box pre-filter over an O(n) scan keeps it fast for datasets of thousands of nodes (it is a pre-filter, not a persistent spatial index).
 
 ---
 
@@ -148,14 +148,14 @@ This project is architected as a **monorepo** supporting multiple languages, as 
 | Language | Package | Description | Documentation |
 | :--- | :--- | :--- | :--- |
 | **Python** | `dongnae` | Pure Python Engine for Backend/Data Ops | [👉 Go to Python Docs](./py-core/README.md) |
-| **JavaScript** | `@dongnae-js/data-kr` | JS Engine for Frontend/Edge | [👉 Go to JS Docs](./js-data-kr/README.md) |
+| **JavaScript** | `@dongnae-js/data-kr` | JS Engine for Frontend/Edge *(experimental, not yet on npm)* | [👉 Go to JS Docs](./js-data-kr/README.md) |
 
 ---
 
 ## 📊 Performance
 
 In internal benchmarks against public Government APIs (VWorld), `dongnae`:
-* **Speed**: ~20x Faster (0.009s vs 0.16s) — a **local lookup vs a network API call**; the gap is dominated by network round-trip, not algorithmic superiority.
+* **Speed**: ~15x faster (0.0030s vs 0.0447s) — a **local lookup vs a network API call**; the gap is dominated by network round-trip, not algorithmic superiority.
 * **Accuracy**: **97.3%** Top-3 Hit Rate for neighborhood identification (name-substring match against VWorld address text).
 
-> *`dongnae` is designed to be "Good Enough" for ~95% of semantic spatial problems, while being "Orders of Magnitude" faster and cheaper.*
+> *`dongnae` is designed to be "Good Enough" for ~95% of semantic spatial problems, while being ~15x faster (local lookup vs network API) and far cheaper (no API costs).*

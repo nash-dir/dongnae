@@ -57,7 +57,7 @@ export class DongnaeEngine {
     }
 
     /**
-     * [Internal] 거리 계산 (Haversine approximation)
+     * [Internal] 거리 계산 (equirectangular / planar approximation)
      */
     _calcDist(lat1, lon1, lat2, lon2) {
         const dLat = (lat2 - lat1) * this.latCoef;

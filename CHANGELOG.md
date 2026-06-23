@@ -81,7 +81,7 @@ ready-to-use Korean dataset, and a first benchmark.
   dongnae by id (negative inside, positive outside, `None` for unknown ids).
 - Korean dataset-included distribution (`dongnae-kr`) so the engine can be used
   without supplying your own CSV.
-- Benchmark against the VWorld geocoding API (~15–20× faster; 97.3% top-3
+- Benchmark against the VWorld geocoding API (~15× faster; 97.3% top-3
   neighbourhood hit rate on random Korean coordinates).
 - Experimental JavaScript port (`@dongnae-js/data-kr`) for browser/edge use.
 

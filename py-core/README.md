@@ -1,6 +1,6 @@
 # **dongnae v.0.2.0** 
 
-## **Lightest Possible Spatial Engine**
+## **Ultra-Lightweight, Dependency-Free Spatial Engine**
 
 * **dongnae** is a dependency-free, pure Python library designed for **high-performance reverse geocoding, radius search, spatial lookup, and Area-of-Effect lookup**. It operates from self-contained native script & pre-rendered CSV dataframe. Designed for high-performance microservices and client-side applications.
 
@@ -43,13 +43,13 @@
 
 * **Lightning Fast**
 
-  * **Auto-Calibration**: Calculates Haversine coefficients once upon loading, avoiding repeated trigonometric operations (cos, sin) during queries.  
+  * **Auto-Calibration**: Computes the equirectangular (planar) distance coefficients once upon loading, avoiding repeated trigonometric operations (cos, sin) during queries.  
 
   * **Bounding-Box Pre-filtering**: A dynamic BBox narrows the linear scan to a local candidate set before distance calculation. (A pre-filter, not a persistent spatial index — spatial queries remain O(n) over candidates; ID lookup is O(1).)
 
   * $O(1)$ **ID Lookup**: Instant retrieval by ID using an internal Hash Map.  
 
-  * In an internal benchmark with ROK Regional Geometry data, `dongnae` was ~20x faster than a `VWorld API` response at the cost of ~20% lower accuracy. (The speed gap is a local lookup vs a network call, not an algorithm-to-algorithm comparison.)
+  * In an internal benchmark with ROK Regional Geometry data, `dongnae` was ~15x faster than a `VWorld API` response, with a 71.67% top-1 / 97.31% top-3 neighbourhood hit rate against the API ground truth. (The speed gap is a local lookup vs a network call, not an algorithm-to-algorithm comparison.)
 
 
 * **Self-contained**
@@ -60,7 +60,7 @@
 
   * **Zero authentication** : No authentication, API key required
 
-  * **Zero vulnerability** : No external connections means no attack surface. (You can't hack what doesn't quack.)
+  * **No network attack surface** : The engine opens no network connections, so there is no remote attack surface. (You still control the local CSV / coordinate input you feed it — you can't remotely hack what doesn't quack.)
 
 
 * **Business-Ready Logic**:  
@@ -90,19 +90,25 @@ You need a CSV file containing your local spatial nodes. The file **must** have 
 
 ### **2\. Installation**
 
-  * `dongnae-kr` package containing ready-made Korean Regional data CSV available in `pip`
+  * `dongnae` — the engine only (bring your own CSV).
+  * `dongnae-kr` — the engine **plus** a ready-made Korean Regional dataset CSV.
 
 ``` bash
-pip install dongnae
+pip install dongnae       # engine only
+pip install dongnae-kr    # engine + Korean dataset
 ```
 
 ### **3\. Initiate Dongnae Engine & Load up Dongnae Dictionary**
+
+> Using the `dongnae-kr` data package? Skip CSV loading entirely:
+> `from dongnae_kr import dongnaekr; engine = dongnaekr()`. The snippet below is
+> for loading **your own** CSV with the bare `dongnae` engine (which ships no data).
 
 ```python
 import sys
 from dongnae import DongnaeEngine
 
-csv_path = r"./data/dongnaeKR.csv" # Example path
+csv_path = r"./data/dongnaeKR.csv" # Replace with the path to your own CSV
 
 try:
     engine = DongnaeEngine() 
@@ -143,6 +149,9 @@ neighbors = engine.nearest(lat, lon, k=3)
 for n in neighbors:
     print(f"- {n['dnname']} is {n['distance']}km away")
 ```
+
+> `distance` is a signed *boundary* distance in km — **negative means the point is
+> inside** that neighbourhood's radius (so it can read as e.g. `-0.08`).
 
 ### **3\. Radius Search (within)**
 
@@ -250,7 +259,7 @@ Performs a text-based search.
 
 * **best\_shot=True (default)**: Returns a single DongnaeData object. 
 * **best\_shot=False**: Returns a list of candidates sorted by relevance score.
-If keyword is not within dictionary, returns `None`.
+If no match is found, returns `None` when `best_shot=True`, and an empty list `[]` when `best_shot=False`.
 
 #### **get(dnid: str) \-\> Optional\[DongnaeData\]**
 

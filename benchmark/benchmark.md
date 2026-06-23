@@ -15,7 +15,7 @@ This document details the performance benchmark results of `dongnae 0.2.0` engin
 * **Data Collection Loop**
   * Create random point within Lat/Lon grid.
   * Lookup coordinate's real address with `VWorld` reverse-geocoding API, checking response time in millisecond scale, and record if its address is valid.
-  * Retrieve 3 `nearest` dongnae candidates from that coordinate with `dongnae-kr 0.1.0` package, checking response time in millisecond scale.
+  * Retrieve 3 `nearest` dongnae candidates from that coordinate with `dongnae-kr 2025.11.30` package, checking response time in millisecond scale.
 
 * **Evaluation**
   * For accuracy real address falls within 3 `nearest` dongnae candidates.
@@ -30,7 +30,7 @@ This document details the performance benchmark results of `dongnae 0.2.0` engin
 **Result**: `dongnae` is approximately **15x faster** than the external API.
 
 * **Latency Analysis**:
-  * `VWorld API` : Network latency + Server processing time (Typically 50ms ~ 200ms per request)
+  * `VWorld API` : Network latency + Server processing time (typically ~40ms ~ 200ms per request; this run averaged 44.71 ms)
     * To eliminate effect from external traffic, benchmark was executed in midnight in Korea.
   * `dongnae`: Pure CPU calculation time (Zero network latency)
 

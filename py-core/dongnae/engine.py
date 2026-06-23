@@ -22,7 +22,7 @@ class DongnaeEngine:
         self._dongnaes: List[DongnaeData] = []
         self._id_map: Dict[str, DongnaeData] = {}
 
-        # Default Haversine coefficients (Based on Korea, approx 37N)
+        # Default equirectangular (planar) distance coefficients (Based on Korea, approx 37N)
         # Will be updated automatically in load()
         self._lat_coef = 111.0
         self._lon_coef = 88.8
@@ -39,7 +39,7 @@ class DongnaeEngine:
     def load(self, csv_path: str):
         """
         Loads the optimized CSV file into memory with automatic encoding detection.
-        Also auto-calculates Haversine coefficients based on the dataset's latitude.
+        Also auto-calculates equirectangular (planar) distance coefficients based on the dataset's latitude.
         """
         encodings = ['utf-8-sig', 'cp949', 'utf-8']
         required = ('dnid', 'dnname', 'dnlatitude', 'dnlongitude', 'dnradius')
@@ -85,7 +85,7 @@ class DongnaeEngine:
             self._id_map = {d['dnid']: d for d in self._dongnaes}
 
         # -------------------------------------------------------
-        # [Auto-Calibration] Calculate Haversine coefficients
+        # [Auto-Calibration] Calculate equirectangular (planar) distance coefficients
         # -------------------------------------------------------
         if self._dongnaes:
             # 1. Extract all latitudes
@@ -107,7 +107,7 @@ class DongnaeEngine:
 
     def _calc_dist(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """
-        [Geometric Distance] Calculates distance between two points (Haversine approximation).
+        [Geometric Distance] Calculates distance between two points (equirectangular / planar approximation).
         Uses dynamically calculated coefficients based on the loaded dataset's center latitude.
         """
         d_lat = (lat2 - lat1) * self._lat_coef

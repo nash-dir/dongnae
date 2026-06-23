@@ -112,7 +112,7 @@ def test_correct_header_no_rows_loads_empty(write_csv):
     assert eng.where(36.0, 127.0) is None
 
 
-# --- Auto-calibration of Haversine coefficients ---
+# --- Auto-calibration of equirectangular (planar) coefficients ---
 
 
 def test_coefficients_calibrated_from_dataset_latitude(engine):

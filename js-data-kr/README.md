@@ -24,9 +24,11 @@ backend — the same design as the Python core.
 
 ## Install (from source)
 
-```bash
-npm install github:nash-dir/dongnae#main --workspaces=false
-# or vendor the js-data-kr/ directory directly into your project
+Not published to npm, and the repo root has no package manifest — so vendor the
+`js-data-kr/src/` directory into your project and import the engine directly:
+
+```js
+import { DongnaeEngine } from "./js-data-kr/src/engine.js";
 ```
 
 It ships as an ES module (`"type": "module"`).
@@ -34,6 +36,8 @@ It ships as an ES module (`"type": "module"`).
 ## Usage
 
 ```js
+// When vendoring, import from the relative path to src/engine.js.
+// The "@dongnae-js/data-kr" specifier works once it is an installed package.
 import { DongnaeEngine } from "@dongnae-js/data-kr";
 
 const engine = new DongnaeEngine(); // dataset is bundled; no loading step
@@ -50,8 +54,11 @@ console.log(hit?.dnname);
 
 ## API
 
-The JavaScript engine mirrors the Python core. Coordinates are `(lat, lon)` and
-distances are "boundary distances" in km (negative = inside the node's radius).
+The JavaScript engine mirrors the Python core; outputs match within a coordinate
+quantization tolerance (the bundled JS dataset is rounded to 4 decimal places,
+~11 m worst case), so distances differ from the Python core at the metre level.
+Coordinates are `(lat, lon)` and distances are "boundary distances" in km
+(negative = inside the node's radius).
 
 | Method | Returns | Description |
 | :-- | :-- | :-- |
@@ -63,9 +70,8 @@ distances are "boundary distances" in km (negative = inside the node's radius).
 | `get(dnid)` | `DongnaeResult \| null` | O(1) lookup by id |
 | `howfar(lat, lon, dnid)` | `number \| null` | Boundary distance to a specific dongnae |
 
-> Note: `index.d.ts` currently documents a subset of the surface; `resolve` and
-> `howfar` are implemented in `src/engine.js` but not yet typed. Treat the table
-> above as the source of truth until the port stabilises.
+> Note: `index.d.ts` types the full public surface, including `resolve` and
+> `howfar`.
 
 ## License
 
