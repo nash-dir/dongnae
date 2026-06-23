@@ -16,7 +16,7 @@ from conftest import CSV_HEADER, rows_to_csv
 
 
 def test_version_is_exposed():
-    assert __version__ == "0.2.0"
+    assert __version__ == "0.3.0"
 
 
 def test_eager_load_via_constructor(sample_csv):

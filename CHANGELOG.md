@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-06-23
+
 ### Added
 - Test suite (`tests/`) covering the full public API — `where`, `nearest`,
   `within`, `resolve`, `search`, `get`, `howfar` — plus the encoding
@@ -67,6 +69,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JavaScript port (`@dongnae-js/data-kr`) README labelled **experimental /
   unpublished**; the CSV→JS conversion tooling under `data/` is now tracked in
   VCS so the dataset is reproducible from a clone.
+- README/CHANGELOG claims aligned with the single committed benchmark: every
+  `~20x` / `0.009s vs 0.16s` / `~15–20x` figure corrected to the measured ~15x
+  (0.0030s vs 0.0447s); the `pip install` / npm-from-source snippets fixed; the
+  "Zero vulnerability" claim scoped to "no network attack surface"; the stale JS
+  `index.d.ts` note removed; and the distance approximation renamed from
+  "Haversine" to "equirectangular" (comments/docstrings only — no behaviour change).
 
 > Still zero runtime dependencies — every change is standard-library / built-in
 > only.
@@ -101,6 +109,7 @@ Initial pre-release of the pure-Python core engine.
   auto-calibration of distance coefficients.
 - Zero runtime dependencies — standard-library `csv` and `math` only.
 
-[Unreleased]: https://github.com/nash-dir/dongnae/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/nash-dir/dongnae/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/nash-dir/dongnae/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/nash-dir/dongnae/releases/tag/v0.2.0
 [0.1.0]: https://github.com/nash-dir/dongnae/releases/tag/v0.1.0
