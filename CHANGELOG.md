@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- CI now runs the JS port's `node --test` suite, and fails if the live demo's
+  copy (`docs/src/`) has drifted from `js-data-kr/src/`.
+- `docs/sync_src.py` copies `js-data-kr/src/` into `docs/src/` (`--check`
+  only verifies).
+
 ## [0.3.0] — 2026-06-23
 
 ### Added

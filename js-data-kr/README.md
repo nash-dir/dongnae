@@ -73,6 +73,13 @@ Coordinates are `(lat, lon)` and distances are "boundary distances" in km
 > Note: `index.d.ts` types the full public surface, including `resolve` and
 > `howfar`.
 
+## Development
+
+`src/` here is the source of truth. The live demo (`docs/src/`) keeps a copy,
+because GitHub Pages serves only `docs/`. After editing `src/`, run
+`python docs/sync_src.py` from the repo root and commit both. CI runs
+`npm test` and fails if the demo copy has drifted.
+
 ## License
 
 MIT — see [LICENSE.txt](./LICENSE.txt).
