@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/sync_src.py` copies `js-data-kr/src/` into `docs/src/` (`--check`
   only verifies).
 
+### Changed
+- Dropped Python 3.8 and 3.9 (both end-of-life): `requires-python` is now
+  `>=3.10` for `dongnae` and `dongnae-kr`, and CI tests 3.10–3.12. The
+  current GitHub runner image (Ubuntu 26.04) no longer ships 3.8/3.9.
+- CI pins `ruff` to 0.15.9; 0.17 widened its default rule set.
+
 ## [0.3.0] — 2026-06-23
 
 ### Added

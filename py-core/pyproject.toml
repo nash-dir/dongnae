@@ -7,7 +7,7 @@ name = "dongnae"
 version = "0.3.0"
 description = "Ultra lightweight, self contained, Quasi-Geocoding Engine"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = {file = "LICENSE.txt"}
 authors = [
   {name = "nash-dir"}
