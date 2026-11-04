@@ -67,6 +67,7 @@
       * **Top-1 Accuracy**: 71.67% (Pinpoint precision)
       * **Top-3 Accuracy**: **97.31%** (Practical precision)
       * **Miss Rate**: 2.69% (Not within top 3)
+      * *These figures were measured on `dongnae-kr 2025.11.30` and have not been re-run on the current dataset (`2026.11.2`).*
       * *`Benchmark` results are based on random coordinate sampling within South Korea and string-matching against VWorld API address responses. Results may vary depending on dataset and evaluation criteria.*
       * *The speed figure compares a **local in-process lookup** against a **remote network API call** — meaningful for "offline vs API", but not an algorithm-to-algorithm comparison. A like-for-like local baseline (e.g. geopandas/shapely) is future work.*
 

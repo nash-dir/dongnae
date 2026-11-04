@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "dongnae-kr"
 # CalVer (YYYY.MM.DD) is intentional: this is a data package whose version
 # tracks the bundled dataset's vintage, not an API. The engine uses SemVer.
-version = "2025.11.30"
+version = "2026.11.2"
 description = "Korean dataset plugin for dongnae engine"
 readme = "README.md"
 # Matches the engine's floor (Python 3.8 and 3.9 are end-of-life).
@@ -14,7 +14,7 @@ requires-python = ">=3.10"
 license = {file = "LICENSE.txt"}
 authors = [{name = "nash-dir"}]
 dependencies = [
-    "dongnae>=0.1.0"  # 코어 패키지 의존성 명시
+    "dongnae>=0.3.0"  # 코어 패키지 의존성 명시
 ]
 
 [tool.setuptools.packages.find]

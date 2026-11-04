@@ -7,9 +7,10 @@ so you can use the engine without supplying your own CSV. It pulls in the
 pure-Python [`dongnae`](https://pypi.org/project/dongnae/) core as a dependency
 and pre-loads the data on construction.
 
-* **Dataset**: ~21,700 Korean dongnae nodes (id, name, lat/lon, effective radius)
+* **Dataset**: ~20,200 Korean dongnae nodes (id, name, lat/lon, effective radius)
 * **Version**: CalVer `YYYY.MM.DD` — the version tracks the **dataset vintage**
-  (currently `2025.11.30`), not an API. The engine itself uses SemVer.
+  (currently `2026.11.2`; PEP 440 drops leading zeros), not an API. The engine
+  itself uses SemVer.
 
 ## Install
 

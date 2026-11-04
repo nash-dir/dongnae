@@ -2,7 +2,7 @@ import os
 from dongnae import DongnaeEngine
 
 _CurrentDir = os.path.dirname(__file__)
-_DataPath = os.path.join(_CurrentDir, 'data', 'dongnaeKR_251130.csv')
+_DataPath = os.path.join(_CurrentDir, 'data', 'dongnaeKR_261102.csv')
 
 class dongnaekr(DongnaeEngine):
     """
