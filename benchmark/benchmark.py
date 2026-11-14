@@ -49,7 +49,8 @@ def query_vworld_api(lat, lon):
         time.sleep(fake_latency)
         return True, "Test Address City Dongnae-Test", fake_latency * 1000
 
-    url = "http://api.vworld.kr/req/address?"
+    # HTTPS: the API key travels in the query string.
+    url = "https://api.vworld.kr/req/address?"
     params = {
         "service": "address",
         "request": "getaddress",

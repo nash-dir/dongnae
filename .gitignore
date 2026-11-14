@@ -25,8 +25,9 @@ dist/
 # Jupyter Notebook
 .ipynb_checkpoints/
 
-# Testing
+# Testing / lint caches
 .pytest_cache/
+.ruff_cache/
 .coverage
 debug/
 debug.py
