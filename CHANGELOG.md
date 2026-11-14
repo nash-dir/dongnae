@@ -33,6 +33,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `>=3.10` for `dongnae` and `dongnae-kr`, and CI tests 3.10–3.12. The
   current GitHub runner image (Ubuntu 26.04) no longer ships 3.8/3.9.
 - CI pins `ruff` to 0.15.9; 0.17 widened its default rule set.
+- Packaging: `license` is now the SPDX expression `"MIT"` (+ `license-files`)
+  for `dongnae` and `dongnae-kr`, replacing the deprecated `{file = ...}` table;
+  build requires `setuptools>=77`.
+- The PyPI release workflow also publishes `dongnae-kr` (tag `kr-v<version>`),
+  checks the tag against `pyproject.toml`, and fails if a distribution contains
+  anything besides the package, its metadata, README and license.
 
 ## [0.3.0] — 2026-06-23
 

@@ -1,15 +1,26 @@
 name: Publish to PyPI
 
 # Trusted Publishing (OIDC) — no API token is stored anywhere.
-# Fires on pushing a version tag (v*); also runnable manually.
-# PyPI side: register a Trusted Publisher on the `dongnae` project with
-#   owner=nash-dir, repo=dongnae, workflow=release.yml, environment=pypi.
+# Tag decides the package:
+#   v<version>     -> dongnae     (py-core)
+#   kr-v<version>  -> dongnae-kr  (py-data-kr)
+# Also runnable manually (pick the package). The tag/version must match the
+# package's pyproject.toml, or the build fails before anything is uploaded.
+# PyPI side: register a Trusted Publisher on EACH project (dongnae, dongnae-kr)
+#   with owner=nash-dir, repo=dongnae, workflow=release.yml, environment=pypi.
 
 on:
   push:
     tags:
       - 'v*'
+      - 'kr-v*'
   workflow_dispatch:
+    inputs:
+      package:
+        description: Package to publish
+        type: choice
+        options: [dongnae, dongnae-kr]
+        default: dongnae
 
 permissions:
   contents: read
@@ -23,14 +34,68 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Build (py-core)
+
+      - name: Resolve package from tag / input
+        id: pkg
         run: |
-          python -m pip install --upgrade build
-          python -m build --outdir dist ./py-core
-      - name: Check metadata
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            pkg="${{ inputs.package }}"; tag_version=""
+          elif [[ "${GITHUB_REF_NAME}" == kr-v* ]]; then
+            pkg="dongnae-kr"; tag_version="${GITHUB_REF_NAME#kr-v}"
+          else
+            pkg="dongnae"; tag_version="${GITHUB_REF_NAME#v}"
+          fi
+          case "$pkg" in
+            dongnae)    dir=py-core;    module=dongnae ;;
+            dongnae-kr) dir=py-data-kr; module=dongnae_kr ;;
+          esac
+          version=$(python -c "import tomllib;print(tomllib.load(open('$dir/pyproject.toml','rb'))['project']['version'])")
+          if [ -n "$tag_version" ] && [ "$tag_version" != "$version" ]; then
+            echo "::error::tag version '$tag_version' != $dir/pyproject.toml version '$version'"
+            exit 1
+          fi
+          echo "Publishing $pkg $version from $dir"
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
+          echo "module=$module" >> "$GITHUB_OUTPUT"
+
+      - name: Build
         run: |
-          python -m pip install --upgrade twine
-          python -m twine check dist/*
+          python -m pip install --upgrade build twine
+          python -m build --outdir dist "./${{ steps.pkg.outputs.dir }}"
+          python -m twine check --strict dist/*
+
+      # Fail if anything besides the package itself, its metadata and the
+      # top-level docs/license ended up in the distributions.
+      - name: Check distribution contents
+        env:
+          MODULE: ${{ steps.pkg.outputs.module }}
+        run: |
+          python - <<'EOF'
+          import glob, os, re, sys, tarfile, zipfile
+          module = os.environ["MODULE"]
+          allowed = re.compile(
+              rf"^({module}/.*\.(py|csv)"
+              rf"|[^/]+\.dist-info/.*"
+              rf"|[^/]+\.egg-info/.*"
+              rf"|(README\.md|LICENSE\.txt|pyproject\.toml|setup\.cfg|PKG-INFO|MANIFEST\.in))$"
+          )
+          bad = []
+          for path in glob.glob("dist/*"):
+              if path.endswith(".whl"):
+                  names = zipfile.ZipFile(path).namelist()
+              else:
+                  names = [m.name.split("/", 1)[1] for m in tarfile.open(path).getmembers()
+                           if m.isfile()]
+              print(f"--- {os.path.basename(path)}")
+              for n in sorted(names):
+                  print("   ", n)
+                  if not allowed.match(n) or "__pycache__" in n:
+                      bad.append(f"{os.path.basename(path)}: {n}")
+          if bad:
+              print("::error::unexpected files in distribution:\n" + "\n".join(bad))
+              sys.exit(1)
+          EOF
+
       - uses: actions/upload-artifact@v4
         with:
           name: dist

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,7 +11,8 @@ description = "Korean dataset plugin for dongnae engine"
 readme = "README.md"
 # Matches the engine's floor (Python 3.8 and 3.9 are end-of-life).
 requires-python = ">=3.10"
-license = {file = "LICENSE.txt"}
+license = "MIT"
+license-files = ["LICENSE.txt"]
 authors = [{name = "nash-dir"}]
 dependencies = [
     "dongnae>=0.3.0"  # 코어 패키지 의존성 명시
